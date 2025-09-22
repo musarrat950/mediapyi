@@ -10,7 +10,7 @@ function withCORS(init?: ResponseInit) {
   return { ...init, headers }
 }
 
-function jsonCORS(body: any, init?: ResponseInit) {
+function jsonCORS(body: unknown, init?: ResponseInit) {
   return NextResponse.json(body, withCORS(init))
 }
 
@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
     }
 
     return jsonCORS({ video })
-  } catch (err: any) {
-    const message = err?.message || "Internal Server Error"
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Internal Server Error"
     return jsonCORS({ error: message }, { status: 500 })
   }
 }
@@ -59,8 +59,8 @@ export async function GET(req: NextRequest) {
     }
 
     return jsonCORS({ video })
-  } catch (err: any) {
-    const message = err?.message || "Internal Server Error"
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Internal Server Error"
     return jsonCORS({ error: message }, { status: 500 })
   }
 }

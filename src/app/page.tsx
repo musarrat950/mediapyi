@@ -94,8 +94,9 @@ export default function Home() {
           return
         }
         setVideo(data.video as ApiVideo)
-      } catch (err: any) {
-        setError(err?.message || "Network error")
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Network error"
+        setError(message)
       }
     })
   }
