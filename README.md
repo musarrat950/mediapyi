@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## YouTube Video Inspector
 
-## Getting Started
+This app lets you paste a YouTube link or video ID and view details pulled from the YouTube Data API v3, including title, description, channel info, statistics, and thumbnails.
 
-First, run the development server:
+Built with Next.js App Router, TypeScript, Tailwind, and shadcn/ui.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Environment variables
+
+Create a `.env` file at the project root and add your YouTube API key:
+
+```
+YOUTUBE_DATA_API_KEY=YOUR_API_KEY_HERE
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+You can obtain an API key from Google Cloud Console by enabling the YouTube Data API v3.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The server reads `process.env.YOUTUBE_DATA_API_KEY` for all API calls. The key is never exposed to the client.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Run locally
 
-## Learn More
+Install dependencies and start the dev server:
 
-To learn more about Next.js, take a look at the following resources:
+```
+npm install
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open http://localhost:3000 in your browser.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Project structure
 
-## Deploy on Vercel
+- `src/api/youtube.ts` — internal backend service for talking to the YouTube Data API.
+- `src/app/api/youtube/route.ts` — Next.js route handler that accepts `{ input: string }` (YouTube URL or 11-char ID) and returns `{ video }`.
+- `src/app/page.tsx` — UI built with shadcn components to submit input and render video details.
+- `next.config.ts` — allows `next/image` to load YouTube thumbnail domains.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### API route
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+POST `/api/youtube`
+
+Request body:
+
+```
+{ "input": "https://www.youtube.com/watch?v=VIDEOID" }
+```
+
+Response (200):
+
+```
+{ "video": { /* normalized video payload incl. title, thumbnails, stats, channel */ } }
+```
+
+Errors:
+
+- 400 — missing input
+- 404 — could not resolve video
+- 500 — server error (e.g. API key missing or upstream error)
+
+### Public API for external use (CORS-enabled)
+
+There are no app-level rate limits enforced by this endpoint. Usage is still subject to the upstream YouTube Data API quota associated with your server API key.
+
+Base URL (local dev): `http://localhost:3000/api/youtube`
+
+Methods:
+
+- `GET /api/youtube?input=<url-or-id>`
+- `POST /api/youtube` with JSON `{ "input": "<url-or-id>" }`
+
+CORS: `Access-Control-Allow-Origin: *` is enabled so you can call this from browsers.
+
+Examples:
+
+```bash
+# GET
+curl "http://localhost:3000/api/youtube?input=https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+# POST
+curl -X POST "http://localhost:3000/api/youtube" \
+  -H "Content-Type: application/json" \
+  -d '{"input":"dQw4w9WgXcQ"}'
+```
+
+Response:
+
+```json
+{
+  "video": {
+    "id": "...",
+    "url": "https://www.youtube.com/watch?v=...",
+    "title": "...",
+    "description": "...",
+    "publishedAt": "...",
+    "channelId": "...",
+    "channelTitle": "...",
+    "thumbnails": { "maxres": { "url": "..." } },
+    "duration": "PT4M13S",
+    "tags": ["..."],
+    "statistics": { "viewCount": 123, "likeCount": 45, "commentCount": 6 },
+    "channel": {
+      "id": "...",
+      "title": "...",
+      "thumbnails": { "default": { "url": "..." } },
+      "subscriberCount": 1000,
+      "videoCount": 120
+    }
+  }
+}
+```
+
+Errors are structured as `{ "error": "message" }` with appropriate status codes.
+
+### Notes
+
+- Only shadcn/ui components are used for the interface, with a neutral color palette.
+- Thumbnails are rendered via `next/image` and remote domains are whitelisted.
