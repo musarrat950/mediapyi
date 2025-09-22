@@ -60,7 +60,9 @@ Errors:
 
 There are no app-level rate limits enforced by this endpoint. Usage is still subject to the upstream YouTube Data API quota associated with your server API key.
 
-Base URL (local dev): `http://localhost:3000/api/youtube`
+Production base URL: `https://mediapye.vercel.app/api/youtube`
+
+Local dev base URL: `http://localhost:3000/api/youtube`
 
 Methods:
 
@@ -72,10 +74,18 @@ CORS: `Access-Control-Allow-Origin: *` is enabled so you can call this from brow
 Examples:
 
 ```bash
-# GET
+# GET (prod)
+curl "https://mediapye.vercel.app/api/youtube?input=https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+# POST (prod)
+curl -X POST "https://mediapye.vercel.app/api/youtube" \
+  -H "Content-Type: application/json" \
+  -d '{"input":"dQw4w9WgXcQ"}'
+
+# GET (local)
 curl "http://localhost:3000/api/youtube?input=https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 
-# POST
+# POST (local)
 curl -X POST "http://localhost:3000/api/youtube" \
   -H "Content-Type: application/json" \
   -d '{"input":"dQw4w9WgXcQ"}'

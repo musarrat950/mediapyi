@@ -26,8 +26,8 @@ Example inputs supported:
 
 ## Environments
 
+- Production base URL: `https://mediapye.vercel.app`
 - Local development base URL: `http://localhost:3000`
-- Production base URL: Replace with your deployed domain, e.g. `https://your-domain.example`
 
 ---
 
@@ -135,12 +135,12 @@ Notes:
 
 GET:
 ```bash
-curl "http://localhost:3000/api/youtube?input=https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+curl "https://mediapye.vercel.app/api/youtube?input=https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 ```
 
 POST:
 ```bash
-curl -X POST "http://localhost:3000/api/youtube" \
+curl -X POST "https://mediapye.vercel.app/api/youtube" \
   -H "Content-Type: application/json" \
   -d '{"input":"dQw4w9WgXcQ"}'
 ```
@@ -149,7 +149,7 @@ curl -X POST "http://localhost:3000/api/youtube" \
 
 ```js
 async function fetchVideo(input) {
-  const res = await fetch(`http://localhost:3000/api/youtube?input=${encodeURIComponent(input)}`)
+  const res = await fetch(`https://mediapye.vercel.app/api/youtube?input=${encodeURIComponent(input)}`)
   if (!res.ok) throw new Error(`Request failed: ${res.status}`)
   const data = await res.json()
   return data.video
@@ -166,7 +166,7 @@ fetchVideo('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
 import axios from 'axios'
 
 async function fetchVideo(input) {
-  const { data } = await axios.get('http://localhost:3000/api/youtube', {
+  const { data } = await axios.get('https://mediapye.vercel.app/api/youtube', {
     params: { input },
   })
   return data.video
@@ -179,7 +179,7 @@ async function fetchVideo(input) {
 interface ApiResponse { video?: Video; error?: string }
 
 async function fetchVideo(input: string): Promise<Video> {
-  const res = await fetch(`http://localhost:3000/api/youtube?input=${encodeURIComponent(input)}`)
+  const res = await fetch(`https://mediapye.vercel.app/api/youtube?input=${encodeURIComponent(input)}`)
   const data = (await res.json()) as ApiResponse
   if (!res.ok || !data.video) throw new Error(data.error || 'Request failed')
   return data.video
@@ -192,7 +192,7 @@ async function fetchVideo(input: string): Promise<Video> {
 import requests
 
 def fetch_video(input: str):
-    r = requests.get("http://localhost:3000/api/youtube", params={"input": input}, timeout=30)
+    r = requests.get("https://mediapye.vercel.app/api/youtube", params={"input": input}, timeout=30)
     r.raise_for_status()
     return r.json()["video"]
 
@@ -217,7 +217,7 @@ type ApiResponse struct {
 }
 
 func main() {
-    base := "http://localhost:3000/api/youtube?input=" + url.QueryEscape("dQw4w9WgXcQ")
+    base := "https://mediapye.vercel.app/api/youtube?input=" + url.QueryEscape("dQw4w9WgXcQ")
     resp, err := http.Get(base)
     if err != nil { panic(err) }
     defer resp.Body.Close()
