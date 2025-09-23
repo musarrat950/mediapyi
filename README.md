@@ -27,12 +27,40 @@ npm run dev
 
 Open http://localhost:3000 in your browser.
 
+### New: Download video or audio
+
+This app now supports downloading YouTube content as either Video+Audio or Audio Only.
+
+- UI: After fetching a video in `src/app/page.tsx`, two buttons appear in the card footer:
+  - "Download Video+Audio" → `/api/download?type=video&id=<VIDEO_ID>`
+  - "Download Audio Only" → `/api/download?type=audio&id=<VIDEO_ID>`
+
+- API: `GET /api/download` streams media with `Content-Disposition: attachment`.
+  - Query params: `id` (or `input`/`url`), and `type` = `video` (default) or `audio`.
+  - No transcoding is performed; the original container and codec are preserved. File extension is inferred from the format (`webm`, `mp4`, etc.).
+
+Dependencies:
+
+```
+npm install @distube/ytdl-core
+```
+
+Implementation notes:
+- The route handler lives at `src/app/api/download/route.ts` and forces the Node.js runtime (not Edge) for streaming.
+- It selects the best available muxed format for video+audio, or audio-only when `type=audio`.
+- If no suitable format is available, a 422 is returned.
+
 ### Project structure
 
 - `src/api/youtube.ts` — internal backend service for talking to the YouTube Data API.
 - `src/app/api/youtube/route.ts` — Next.js route handler that accepts `{ input: string }` (YouTube URL or 11-char ID) and returns `{ video }`.
 - `src/app/page.tsx` — UI built with shadcn components to submit input and render video details.
 - `next.config.ts` — allows `next/image` to load YouTube thumbnail domains.
+- `src/app/api/download/route.ts` — streams YouTube downloads (video+audio or audio-only) using `@distube/ytdl-core`.
+
+### Legal & usage
+
+Ensure you comply with YouTube's Terms of Service and local laws. This project is for educational purposes. Do not use it to infringe copyright or violate platform terms.
 
 ### API route
 

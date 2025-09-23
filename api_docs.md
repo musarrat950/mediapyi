@@ -82,6 +82,37 @@ CORS preflight handler.
 
 ---
 
+### GET /api/download
+
+Stream a YouTube download directly (video+audio or audio-only). Responses include `Content-Disposition: attachment` so browsers will download the file.
+
+Query parameters (aliases supported):
+- `id` (string) — YouTube video ID
+- `input` (string) — YouTube URL or video ID (alias)
+- `url` (string) — Alias of `input`
+- `type` (string) — `video` (default) for video+audio, or `audio` for audio-only
+
+Examples:
+```
+GET /api/download?type=video&id=dQw4w9WgXcQ
+GET /api/download?type=audio&input=https://www.youtube.com/watch?v=dQw4w9WgXcQ
+```
+
+Responses:
+- 200 OK — streamed media bytes with appropriate `Content-Type` and `Content-Disposition` filename
+- 400 Bad Request — `{ "error": "Missing input (YouTube URL or videoId)" }`
+- 404 Not Found — `{ "error": "Unable to resolve a video from the provided input" }`
+- 422 Unprocessable Entity — `{ "error": "No matching formats found for this video." }`
+- 500 Internal Server Error — `{ "error": "..." }`
+
+CORS headers are present on all responses. Runtime is Node.js (not Edge) to support streaming.
+
+Notes:
+- `type=audio` returns an MP3 file. Audio is transcoded server-side to MP3 (`audio/mpeg`, `.mp3`).
+- `type=video` selects a muxed format (video+audio) when available. If only separate streams exist, the endpoint will pick the best available that includes both; otherwise a 422 is returned.
+
+---
+
 ## Data Model
 
 ### Video object
@@ -143,6 +174,22 @@ POST:
 curl -X POST "https://mediapye.vercel.app/api/youtube" \
   -H "Content-Type: application/json" \
   -d '{"input":"dQw4w9WgXcQ"}'
+```
+
+DOWNLOAD (video/audio):
+
+```bash
+# Video+Audio (prod)
+curl -L "https://mediapye.vercel.app/api/download?type=video&id=dQw4w9WgXcQ" -o video.mp4
+
+# Audio Only as MP3 (prod)
+curl -L "https://mediapye.vercel.app/api/download?type=audio&id=dQw4w9WgXcQ" -o audio.mp3
+
+# Video+Audio (local)
+curl -L "http://localhost:3000/api/download?type=video&id=dQw4w9WgXcQ" -o video.mp4
+
+# Audio Only as MP3 (local)
+curl -L "http://localhost:3000/api/download?type=audio&id=dQw4w9WgXcQ" -o audio.mp3
 ```
 
 ### JavaScript (fetch)

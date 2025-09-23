@@ -227,6 +227,24 @@ export default function Home() {
                 )}
               </CardContent>
               <CardFooter className="flex justify-between">
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild variant="default" className="bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-neutral-200 dark:text-neutral-900 dark:hover:bg-neutral-300">
+                    <a
+                      href={`/api/download?type=video&id=${encodeURIComponent(video.id)}`}
+                      title="Download video with audio"
+                    >
+                      Download Video+Audio
+                    </a>
+                  </Button>
+                  <Button asChild variant="secondary" className="bg-neutral-100 text-neutral-800 hover:bg-neutral-200 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800">
+                    <a
+                      href={`/api/download?type=audio&id=${encodeURIComponent(video.id)}`}
+                      title="Download audio only"
+                    >
+                      Download Audio Only
+                    </a>
+                  </Button>
+                </div>
                 <Button asChild variant="outline" className="border-neutral-300 text-neutral-800 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-900">
                   <a href={video.url} target="_blank" rel="noreferrer">Open on YouTube</a>
                 </Button>
