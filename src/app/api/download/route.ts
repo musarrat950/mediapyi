@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
         .format("mp3")
         .audioCodec("libmp3lame")
         .audioBitrate(192)
-        .on("error", (err: unknown) => {
+        .on("error", () => {
           // The error will be surfaced to the ReadableStream
         });
 
